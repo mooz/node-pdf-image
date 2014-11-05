@@ -1,0 +1,7 @@
+{
+  "name": "pdf-image",
+  "version": "0.0.1",
+  "dependencies": {
+    "es6-promise": "~2.0.0"
+  }
+}
