@@ -38,4 +38,10 @@ describe("PDFImage", function () {
       expect(fs.existsSync("/tmp/test-10.png")).to.be.true;
     });
   });
+
+  it("should return # of pages", function () {
+    pdfImage.numberOfPages().then(function (numberOfPages) {
+      expect(numberOfPages).to.be.equal(21);
+    });
+  });
 });

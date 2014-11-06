@@ -5,6 +5,7 @@ var Promise = require("es6-promise").Promise;
 var path = require("path");
 var fs   = require("fs");
 var util = require("util");
+var exec = require("child_process").exec;
 
 function PDFImage(pdfFilePath) {
   this.pdfFilePath = pdfFilePath;
@@ -14,6 +15,22 @@ function PDFImage(pdfFilePath) {
 }
 
 PDFImage.prototype = {
+  getNumberOfPagesCommand: function () {
+    return util.format(
+      "gs -q -dNODISPLAY -c '(%s) (r) file runpdfbegin pdfpagecount = quit'",
+      this.pdfFilePath
+    );
+  },
+  numberOfPages: function () {
+    var numberOfPagesCommand = this.getNumberOfPagesCommand();
+    var promise = new Promise(function (resolve, reject) {
+      exec(numberOfPagesCommand, function (err, stdout, stderr) {
+        if (err) { return reject(err); }
+        return resolve(Number(stdout));
+      });
+    });
+    return promise;
+  },
   getOutputImagePathForPage: function (pageNumber) {
     return path.join(
       this.outputDirectory,
@@ -35,7 +52,6 @@ PDFImage.prototype = {
 
     var promise = new Promise(function (resolve, reject) {
       function convertPageToImage() {
-        var exec = require("child_process").exec;
         exec(convertCommand, function (err, stdout, stderr) {
           if (err) { return reject(err); }
           return resolve(outputImagePath);
