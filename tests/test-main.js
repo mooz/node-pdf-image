@@ -23,7 +23,7 @@ describe("PDFImage", function () {
   });
 
   it("should return correct convert command", function () {
-    expect(pdfImage.getConvertCommandForPage(1))
+    expect(pdfImage.constructConvertCommandForPage(1))
       .equal("convert '/tmp/test.pdf[1]' /tmp/test-1.png");
   });
 
