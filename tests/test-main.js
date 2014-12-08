@@ -44,4 +44,13 @@ describe("PDFImage", function () {
       expect(numberOfPages).to.be.equal(21);
     });
   });
+
+  it("should construct convert options correctly", function () {
+    pdfImage.setConvertOptions({
+      "-density": 300,
+      "-trim": null
+    });
+    expect(pdfImage.constructConvertOptions()).equal("-density 300 -trim");
+    pdfImage.setConvertOptions(null);
+  });
 });

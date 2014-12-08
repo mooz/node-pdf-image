@@ -7,9 +7,14 @@ var fs   = require("fs");
 var util = require("util");
 var exec = require("child_process").exec;
 
-function PDFImage(pdfFilePath) {
+function PDFImage(pdfFilePath, options) {
+  if (!options) options = {};
+
   this.pdfFilePath = pdfFilePath;
   this.pdfFileBaseName = path.basename(pdfFilePath, ".pdf");
+
+  this.setConvertOptions(options.convertOptions || {});
+
   // TODO: make out dir customizable
   this.outputDirectory = path.dirname(pdfFilePath);
 }
@@ -59,13 +64,27 @@ PDFImage.prototype = {
       this.pdfFileBaseName + "-" + pageNumber + ".png"
     );
   },
+  setConvertOptions: function (convertOptions) {
+    this.convertOptions = convertOptions || {};
+  },
   constructConvertCommandForPage: function (pageNumber) {
     var pdfFilePath = this.pdfFilePath;
     var outputImagePath = this.getOutputImagePathForPage(pageNumber);
+    var convertOptionString = this.constructConvertOptions();
     return util.format(
-      "convert '%s[%d]' %s",
+      "convert %s'%s[%d]' %s",
+      convertOptionString ? convertOptionString + " " : "",
       pdfFilePath, pageNumber, outputImagePath
     );
+  },
+  constructConvertOptions: function () {
+    return Object.keys(this.convertOptions).sort().map(function (optionName) {
+      if (this.convertOptions[optionName] !== null) {
+        return optionName + " " + this.convertOptions[optionName];
+      } else {
+        return optionName;
+      }
+    }, this).join(" ");
   },
   convertPage: function (pageNumber) {
     var pdfFilePath     = this.pdfFilePath;
