@@ -48,6 +48,11 @@ PDFImage.prototype = {
     });
     return promise;
   },
+  numberOfPages: function () {
+    return this.getInfo().then(function (info) {
+      return info["Pages"];
+    });
+  },
   getOutputImagePathForPage: function (pageNumber) {
     return path.join(
       this.outputDirectory,
