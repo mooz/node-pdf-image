@@ -9,7 +9,7 @@ describe("PDFImage", function () {
   var pdfPath = "/tmp/test.pdf";
   var pdfImage = new PDFImage(pdfPath);
 
-  it("should has correct basename", function () {
+  it("should have correct basename", function () {
     expect(pdfImage.pdfFileBaseName).equal("test");
   });
 
