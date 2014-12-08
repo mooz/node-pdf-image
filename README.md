@@ -7,11 +7,11 @@ by using ImageMagick.
 
     npm install pdf-image
 
-Ensure you have `convert` and `gs` commands.
+Ensure you have `convert`, `gs`, and `pdfinfo` (part of poppler) commands.
 
 ### Ubuntu
 
-    sudo apt-get install imagemagick ghostscript
+    sudo apt-get install imagemagick ghostscript poppler-utils
 
 ## Usage
 

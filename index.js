@@ -15,18 +15,35 @@ function PDFImage(pdfFilePath) {
 }
 
 PDFImage.prototype = {
-  getNumberOfPagesCommand: function () {
+  constructGetInfoCommand: function () {
     return util.format(
-      "gs -q -dNODISPLAY -c '(%s) (r) file runpdfbegin pdfpagecount = quit'",
+      "pdfinfo '%s'",
       this.pdfFilePath
     );
   },
-  numberOfPages: function () {
-    var numberOfPagesCommand = this.getNumberOfPagesCommand();
+  parseGetInfoCommandOutput: function (output) {
+    var info = {};
+    output.split("\n").forEach(function (line) {
+      if (line.match(/^(.*?):[ \t]*(.*)$/)) {
+        info[RegExp.$1] = RegExp.$2;
+      }
+    });
+    return info;
+  },
+  getInfo: function () {
+    var self = this;
+    var getInfoCommand = this.constructGetInfoCommand();
     var promise = new Promise(function (resolve, reject) {
-      exec(numberOfPagesCommand, function (err, stdout, stderr) {
-        if (err) { return reject(err); }
-        return resolve(Number(stdout));
+      exec(getInfoCommand, function (err, stdout, stderr) {
+        if (err) {
+          return reject({
+            message: "Failed to get PDF'S information",
+            error: err,
+            stdout: stdout,
+            stderr: stderr
+          });
+        }
+        return resolve(self.parseGetInfoCommandOutput(stdout));
       });
     });
     return promise;
@@ -37,7 +54,7 @@ PDFImage.prototype = {
       this.pdfFileBaseName + "-" + pageNumber + ".png"
     );
   },
-  getConvertCommandForPage: function (pageNumber) {
+  constructConvertCommandForPage: function (pageNumber) {
     var pdfFilePath = this.pdfFilePath;
     var outputImagePath = this.getOutputImagePathForPage(pageNumber);
     return util.format(
@@ -48,19 +65,31 @@ PDFImage.prototype = {
   convertPage: function (pageNumber) {
     var pdfFilePath     = this.pdfFilePath;
     var outputImagePath = this.getOutputImagePathForPage(pageNumber);
-    var convertCommand  = this.getConvertCommandForPage(pageNumber);
+    var convertCommand  = this.constructConvertCommandForPage(pageNumber);
 
     var promise = new Promise(function (resolve, reject) {
       function convertPageToImage() {
         exec(convertCommand, function (err, stdout, stderr) {
-          if (err) { return reject(err); }
+          if (err) {
+            return reject({
+              message: "Failed to convert page to image",
+              error: err,
+              stdout: stdout,
+              stderr: stderr
+            });
+          }
           return resolve(outputImagePath);
         });
       }
 
       fs.stat(outputImagePath, function (err, imageFileStat) {
         var imageNotExists = err && err.code === "ENOENT";
-        if (!imageNotExists && err) { return reject(err); }
+        if (!imageNotExists && err) {
+          return reject({
+            message: "Failed to stat image file",
+            error: err
+          });
+        }
 
         // convert when (1) image doesn't exits or (2) image exists
         // but its timestamp is older than pdf's one
@@ -73,7 +102,12 @@ PDFImage.prototype = {
 
         // image exist. check timestamp.
         fs.stat(pdfFilePath, function (err, pdfFileStat) {
-          if (err) { return reject(err); }
+          if (err) {
+            return reject({
+              message: "Failed to stat PDF file",
+              error: err
+            });
+          }
 
           if (imageFileStat.mtime < pdfFileStat.mtime) {
             // (2)
