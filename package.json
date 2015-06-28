@@ -1,6 +1,10 @@
 {
   "name": "pdf-image",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mooz/node-pdf-image.git"
+  },
   "dependencies": {
     "es6-promise": "~2.0.0",
     "chai": "~1.9.2"
