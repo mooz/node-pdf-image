@@ -13,6 +13,10 @@ Ensure you have `convert`, `gs`, and `pdfinfo` (part of poppler) commands.
 
     sudo apt-get install imagemagick ghostscript poppler-utils
 
+### OSX (Yosemite)
+
+    brew install imagemagick ghostscript poppler
+
 ## Usage
 
 ```javascript

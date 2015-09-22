@@ -13,7 +13,8 @@ function PDFImage(pdfFilePath, options) {
   this.pdfFilePath = pdfFilePath;
   this.pdfFileBaseName = path.basename(pdfFilePath, ".pdf");
 
-  this.setConvertOptions(options.convertOptions || {});
+  this.setConvertOptions(options.convertOptions);
+  this.setConvertExtension(options.convertExtension);
 
   // TODO: make out dir customizable
   this.outputDirectory = path.dirname(pdfFilePath);
@@ -61,19 +62,22 @@ PDFImage.prototype = {
   getOutputImagePathForPage: function (pageNumber) {
     return path.join(
       this.outputDirectory,
-      this.pdfFileBaseName + "-" + pageNumber + ".png"
+      this.pdfFileBaseName + "-" + pageNumber + "." + this.convertExtension
     );
   },
   setConvertOptions: function (convertOptions) {
     this.convertOptions = convertOptions || {};
   },
+  setConvertExtension: function (convertExtension) {
+    this.convertExtension = convertExtension || "png";
+  },
   constructConvertCommandForPage: function (pageNumber) {
     var pdfFilePath = this.pdfFilePath;
     var outputImagePath = this.getOutputImagePathForPage(pageNumber);
-    var convertOptionString = this.constructConvertOptions();
+    var convertOptionsString = this.constructConvertOptions();
     return util.format(
       "convert %s'%s[%d]' %s",
-      convertOptionString ? convertOptionString + " " : "",
+      convertOptionsString ? convertOptionsString + " " : "",
       pdfFilePath, pageNumber, outputImagePath
     );
   },

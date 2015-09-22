@@ -7,7 +7,11 @@ var PDFImage = require("../").PDFImage;
 
 describe("PDFImage", function () {
   var pdfPath = "/tmp/test.pdf";
-  var pdfImage = new PDFImage(pdfPath);
+  var pdfImage;
+
+  beforeEach(function() {
+     pdfImage = new PDFImage(pdfPath)
+  });
 
   it("should have correct basename", function () {
     expect(pdfImage.pdfFileBaseName).equal("test");
@@ -28,7 +32,7 @@ describe("PDFImage", function () {
   });
 
   // TODO: Do page updating test
-  it("should convert PDF's page to png file", function () {
+  it("should convert PDF's page to a file with the default extension", function () {
     pdfImage.convertPage(1).then(function (imagePath) {
       expect(imagePath).equal("/tmp/test-1.png");
       expect(fs.existsSync("/tmp/test-1.png")).to.be.true;
@@ -36,6 +40,14 @@ describe("PDFImage", function () {
     pdfImage.convertPage(10).then(function (imagePath) {
       expect(imagePath).equal("/tmp/test-10.png");
       expect(fs.existsSync("/tmp/test-10.png")).to.be.true;
+    });
+  });
+
+  it("should convert PDF's page to file with a specified extension", function () {
+    pdfImage.setConvertExtension("jpeg");
+    pdfImage.convertPage(1).then(function (imagePath) {
+      expect(imagePath).equal("/tmp/test-1.jpeg");
+      expect(fs.existsSync("/tmp/test-1.jpeg")).to.be.true;
     });
   });
 
@@ -51,6 +63,5 @@ describe("PDFImage", function () {
       "-trim": null
     });
     expect(pdfImage.constructConvertOptions()).equal("-density 300 -trim");
-    pdfImage.setConvertOptions(null);
   });
 });
