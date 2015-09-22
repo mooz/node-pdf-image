@@ -9,7 +9,7 @@ describe("PDFImage", function () {
   var pdfPath = "/tmp/test.pdf";
   var pdfImage;
 
-  before(function() {
+  beforeEach(function() {
      pdfImage = new PDFImage(pdfPath)
   });
 
