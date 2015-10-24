@@ -24,7 +24,7 @@ var PDFImage = require("pdf-image").PDFImage;
 
 var pdfImage = new PDFImage("/tmp/slide.pdf");
 pdfImage.convertPage(0).then(function (imagePath) {
-  // 0-th page (fisrt page) of the slide.pdf is available as slide-0.png
+  // 0-th page (first page) of the slide.pdf is available as slide-0.png
   fs.existsSync("/tmp/slide-0.png") // => true
 });
 ```
