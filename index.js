@@ -76,7 +76,7 @@ PDFImage.prototype = {
     var outputImagePath = "\""+this.getOutputImagePathForPage(pageNumber)+"\"";
     var convertOptionsString = this.constructConvertOptions();
     return util.format(
-      "convert %s'%s[%d]' %s",
+      "convert %s'%s[%d]' '%s'",
       convertOptionsString ? convertOptionsString + " " : "",
       pdfFilePath, pageNumber, outputImagePath
     );
