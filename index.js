@@ -15,6 +15,7 @@ function PDFImage(pdfFilePath, options) {
 
   this.setConvertOptions(options.convertOptions);
   this.setConvertExtension(options.convertExtension);
+  this.useGM = options.graphicsMagick || false;
 
   // TODO: make out dir customizable
   this.outputDirectory = path.dirname(pdfFilePath);
@@ -73,10 +74,11 @@ PDFImage.prototype = {
   },
   constructConvertCommandForPage: function (pageNumber) {
     var pdfFilePath = this.pdfFilePath;
-    var outputImagePath = "\""+this.getOutputImagePathForPage(pageNumber)+"\"";
+    var outputImagePath = this.getOutputImagePathForPage(pageNumber);
     var convertOptionsString = this.constructConvertOptions();
     return util.format(
-      "convert %s'%s[%d]' '%s'",
+      "%s %s'%s[%d]' '%s'",
+      this.useGM ? "gm convert" : "convert",
       convertOptionsString ? convertOptionsString + " " : "",
       pdfFilePath, pageNumber, outputImagePath
     );

@@ -1,6 +1,6 @@
 {
   "name": "pdf-image",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -13,5 +13,11 @@
   "dependencies": {
     "es6-promise": "~2.0.0",
     "chai": "~1.9.2"
+  },
+  "devDependencies": {
+    "mocha": "~2.3.4"
+  },
+  "scripts": {
+    "test": "mocha tests/*"
   }
 }
