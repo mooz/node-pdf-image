@@ -28,7 +28,13 @@ describe("PDFImage", function () {
 
   it("should return correct convert command", function () {
     expect(pdfImage.constructConvertCommandForPage(1))
-      .equal("convert '/tmp/test.pdf[1]' /tmp/test-1.png");
+      .equal("convert '/tmp/test.pdf[1]' '/tmp/test-1.png'");
+  });
+
+  it("should use gm when you ask it to", function () {
+    pdfImage = new PDFImage(pdfPath, {graphicsMagick: true})
+    expect(pdfImage.constructConvertCommandForPage(1))
+      .equal("gm convert '/tmp/test.pdf[1]' '/tmp/test-1.png'");
   });
 
   // TODO: Do page updating test
