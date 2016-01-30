@@ -17,8 +17,7 @@ function PDFImage(pdfFilePath, options) {
   this.setConvertExtension(options.convertExtension);
   this.useGM = options.graphicsMagick || false;
 
-  // TODO: make out dir customizable
-  this.outputDirectory = path.dirname(pdfFilePath);
+  this.outputDirectory = options.outputDirectory || path.dirname(pdfFilePath);
 }
 
 PDFImage.prototype = {
