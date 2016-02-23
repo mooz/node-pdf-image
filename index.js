@@ -11,8 +11,8 @@ function PDFImage(pdfFilePath, options) {
   if (!options) options = {};
 
   this.pdfFilePath = pdfFilePath;
-  this.pdfFileBaseName = options.pdfFileBaseName || path.basename(pdfFilePath, ".pdf");
 
+  this.setPdfFileBaseName(options.pdfFileBaseName);
   this.setConvertOptions(options.convertOptions);
   this.setConvertExtension(options.convertExtension);
   this.useGM = options.graphicsMagick || false;
@@ -67,6 +67,9 @@ PDFImage.prototype = {
   },
   setConvertOptions: function (convertOptions) {
     this.convertOptions = convertOptions || {};
+  },
+  setPdfFileBaseName: function(pdfFileBaseName) {
+    this.pdfFileBaseName = pdfFileBaseName || path.basename(this.pdfFilePath, ".pdf");
   },
   setConvertExtension: function (convertExtension) {
     this.convertExtension = convertExtension || "png";
