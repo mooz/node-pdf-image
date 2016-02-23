@@ -11,7 +11,7 @@ function PDFImage(pdfFilePath, options) {
   if (!options) options = {};
 
   this.pdfFilePath = pdfFilePath;
-  this.pdfFileBaseName = path.basename(pdfFilePath, ".pdf");
+  this.pdfFileBaseName = options.pdfFileBaseName || path.basename(pdfFilePath, ".pdf");
 
   this.setConvertOptions(options.convertOptions);
   this.setConvertExtension(options.convertExtension);
