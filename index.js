@@ -23,7 +23,7 @@ function PDFImage(pdfFilePath, options) {
 PDFImage.prototype = {
   constructGetInfoCommand: function () {
     return util.format(
-      "pdfinfo '%s'",
+      "pdfinfo \"%s\"",
       this.pdfFilePath
     );
   },
@@ -76,7 +76,7 @@ PDFImage.prototype = {
     var outputImagePath = this.getOutputImagePathForPage(pageNumber);
     var convertOptionsString = this.constructConvertOptions();
     return util.format(
-      "%s %s'%s[%d]' '%s'",
+      "%s %s\"%s[%d]\" \"%s\"",
       this.useGM ? "gm convert" : "convert",
       convertOptionsString ? convertOptionsString + " " : "",
       pdfFilePath, pageNumber, outputImagePath
