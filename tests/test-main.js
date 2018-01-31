@@ -16,6 +16,11 @@ describe("PDFImage", function () {
   it("should have correct basename", function () {
     expect(pdfImage.pdfFileBaseName).equal("test");
   });
+  
+  it("should set custom basename", function() {
+    pdfImage.setPdfFileBaseName('custom-basename');
+    expect(pdfImage.pdfFileBaseName).equal("custom-basename");
+  });
 
   it("should return correct page path", function () {
     expect(pdfImage.getOutputImagePathForPage(1))
