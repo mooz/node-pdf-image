@@ -50,3 +50,20 @@ URLs for each pages of a PDF like
     });
   });
 ```
+
+## Options
+
+Following example shows an example of how to add imagemagick command-line options (you can find the complete list here -> http://www.imagemagick.org/script/convert.php):
+
+```javascript
+var theOptions = {};
+theOptions.convertOptions = {};
+theOptions.convertOptions["-resize"] =  "2000x2000";
+theOptions.convertOptions["-quality"] =  "75";
+```
+
+And then just change the instantiation of a new PDFImage by:
+
+```javascript
+var pdfImage = new PDFImage(pdfPath, theOptions);
+```
