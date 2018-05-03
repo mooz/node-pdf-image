@@ -6,11 +6,10 @@ let PDFImage = require("../").PDFImage;
 describe("PDFImage", function () {
   let pdfPath = "/tmp/test.pdf";
   let pdfImage;
-  const generatedFiles = [];
+  let generatedFiles = [];
 
   before(function(done){
     fs.createReadStream('tests/test.pdf').pipe(fs.createWriteStream(pdfPath));
-    generatedFiles.push(pdfPath);
     if (fs.existsSync(pdfPath)){
       done();
     } else {
@@ -105,18 +104,33 @@ describe("PDFImage", function () {
     expect(pdfImage.constructConvertOptions()).equal("-density 300 -trim");
   });
 
-  after(function(done){
+  afterEach(function(done){
     //cleanUp files generated during test
     let i = generatedFiles.length;
-    generatedFiles.forEach(function(filepath){
-      fs.unlink(filepath, function(err) {
-        i--;
-        if (err) {
-          done(err);
-        } else if (i <= 0) {
-          done();
-        }
+    if (i > 0 ){
+      generatedFiles.forEach(function(filepath, index){
+        fs.unlink(filepath, function(err) {
+          i--;
+          if (err) {
+            done(err);
+          } else if (i <= 0) {
+            done();
+          }
+        });
       });
+      generatedFiles = []; //clear after delete
+    } else {
+      done();
+    }
+  });
+
+  after(function(done){
+    //finaly - remove test.pdf from /tmp/
+    fs.unlink(pdfPath, function(err) {
+      if (err) {
+        done(err);
+      }
+      done();
     });
-  })
+  });
 });
