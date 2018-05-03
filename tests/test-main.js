@@ -53,46 +53,54 @@ describe("PDFImage", function () {
   });
 
   // TODO: Do page updating test
-  it("should convert PDF's page to a file with the default extension", function (done) {
-    pdfImage.convertPage(1).then(function (imagePath) {
-      expect(imagePath).equal("/tmp/test-1.png");
-      expect(fs.existsSync(imagePath)).to.be.true;
-      generatedFiles.push(imagePath);
-      done();
-    }).catch(function(err){
-      done(err);
+  it("should convert PDF's page to a file with the default extension", function () {
+    return new Promise(function(resolve, reject) {
+      pdfImage.convertPage(1).then(function (imagePath) {
+        expect(imagePath).equal("/tmp/test-1.png");
+        expect(fs.existsSync(imagePath)).to.be.true;
+        generatedFiles.push(imagePath);
+        resolve();
+      }).catch(function(err){
+        reject(err);
+      });
     });
   });
 
-  it("should convert PDF's page 10 to a file with the default extension", function (done) {
-    pdfImage.convertPage(9).then(function (imagePath) {
-      expect(imagePath).equal("/tmp/test-9.png");
-      expect(fs.existsSync(imagePath)).to.be.true;
-      generatedFiles.push(imagePath);
-      done();
-    }).catch(function(err){
-      done(err);
+  it("should convert PDF's page 10 to a file with the default extension", function () {
+    return new Promise(function(resolve, reject){
+      pdfImage.convertPage(9).then(function (imagePath) {
+        expect(imagePath).equal("/tmp/test-9.png");
+        expect(fs.existsSync(imagePath)).to.be.true;
+        generatedFiles.push(imagePath);
+        resolve();
+      }).catch(function(err){
+        reject(err);
+      });
+    })
+  });
+
+  it("should convert PDF's page to file with a specified extension", function () {
+    return new Promise(function(resolve, reject) {
+      pdfImage.setConvertExtension("jpeg");
+      pdfImage.convertPage(1).then(function (imagePath) {
+        expect(imagePath).equal("/tmp/test-1.jpeg");
+        expect(fs.existsSync(imagePath)).to.be.true;
+        generatedFiles.push(imagePath);
+        resolve();
+      }).catch(function(err){
+        reject(err);
+      });
     });
   });
 
-  it("should convert PDF's page to file with a specified extension", function (done) {
-    pdfImage.setConvertExtension("jpeg");
-    pdfImage.convertPage(1).then(function (imagePath) {
-      expect(imagePath).equal("/tmp/test-1.jpeg");
-      expect(fs.existsSync(imagePath)).to.be.true;
-      generatedFiles.push(imagePath);
-      done();
-    }).catch(function(err){
-      done(err);
-    });
-  });
-
-  it("should return # of pages", function (done) {
-    pdfImage.numberOfPages().then(function (numberOfPages) {
-      expect(parseInt(numberOfPages)).to.be.equal(10);
-      done();
-    }).catch(function(err){
-      done(err);
+  it("should return # of pages", function () {
+    return new Promise(function(resolve, reject) {
+      pdfImage.numberOfPages().then(function (numberOfPages) {
+        expect(parseInt(numberOfPages)).to.be.equal(10);
+        resolve();
+      }).catch(function(err){
+        reject(err);
+      });
     });
   });
 

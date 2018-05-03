@@ -11,11 +11,11 @@
   },
   "homepage": "https://github.com/mooz/node-pdf-image#readme",
   "dependencies": {
-    "es6-promise": "~2.0.0"
+    "es6-promise": "~4.2.4"
   },
   "devDependencies": {
-    "chai": "~1.9.2",
-    "mocha": "~2.3.4"
+    "chai": "~4.1.2",
+    "mocha": "~5.1.1"
   },
   "scripts": {
     "test": "mocha tests/*"
