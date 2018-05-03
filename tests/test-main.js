@@ -1,13 +1,24 @@
-var assert = require("assert");
-var expect = require("chai").expect;
-var path   = require("path");
-var fs     = require("fs");
+let expect = require("chai").expect;
+let fs     = require("fs");
 
-var PDFImage = require("../").PDFImage;
+let PDFImage = require("../").PDFImage;
 
 describe("PDFImage", function () {
-  var pdfPath = "/tmp/test.pdf";
-  var pdfImage;
+  let pdfPath = "/tmp/test.pdf";
+  let pdfImage;
+  const generatedFiles = [];
+
+  before(function(done){
+    fs.createReadStream('tests/test.pdf').pipe(fs.createWriteStream(pdfPath));
+    generatedFiles.push(pdfPath);
+    if (fs.existsSync(pdfPath)){
+      done();
+    } else {
+      throw new Error({
+        message: 'File missing at: '+ pdfPath + '. Copy task was not a success'
+      });
+    }
+  });
 
   beforeEach(function() {
      pdfImage = new PDFImage(pdfPath)
@@ -37,34 +48,52 @@ describe("PDFImage", function () {
   });
 
   it("should use gm when you ask it to", function () {
-    pdfImage = new PDFImage(pdfPath, {graphicsMagick: true})
+    pdfImage = new PDFImage(pdfPath, {graphicsMagick: true});
     expect(pdfImage.constructConvertCommandForPage(1))
       .equal('gm convert "/tmp/test.pdf[1]" "/tmp/test-1.png"');
   });
 
   // TODO: Do page updating test
-  it("should convert PDF's page to a file with the default extension", function () {
+  it("should convert PDF's page to a file with the default extension", function (done) {
     pdfImage.convertPage(1).then(function (imagePath) {
       expect(imagePath).equal("/tmp/test-1.png");
-      expect(fs.existsSync("/tmp/test-1.png")).to.be.true;
-    });
-    pdfImage.convertPage(10).then(function (imagePath) {
-      expect(imagePath).equal("/tmp/test-10.png");
-      expect(fs.existsSync("/tmp/test-10.png")).to.be.true;
+      expect(fs.existsSync(imagePath)).to.be.true;
+      generatedFiles.push(imagePath);
+      done();
+    }).catch(function(err){
+      done(err);
     });
   });
 
-  it("should convert PDF's page to file with a specified extension", function () {
+  it("should convert PDF's page 10 to a file with the default extension", function (done) {
+    pdfImage.convertPage(9).then(function (imagePath) {
+      expect(imagePath).equal("/tmp/test-9.png");
+      expect(fs.existsSync(imagePath)).to.be.true;
+      generatedFiles.push(imagePath);
+      done();
+    }).catch(function(err){
+      done(err);
+    });
+  });
+
+  it("should convert PDF's page to file with a specified extension", function (done) {
     pdfImage.setConvertExtension("jpeg");
     pdfImage.convertPage(1).then(function (imagePath) {
       expect(imagePath).equal("/tmp/test-1.jpeg");
-      expect(fs.existsSync("/tmp/test-1.jpeg")).to.be.true;
+      expect(fs.existsSync(imagePath)).to.be.true;
+      generatedFiles.push(imagePath);
+      done();
+    }).catch(function(err){
+      done(err);
     });
   });
 
-  it("should return # of pages", function () {
+  it("should return # of pages", function (done) {
     pdfImage.numberOfPages().then(function (numberOfPages) {
-      expect(numberOfPages).to.be.equal(21);
+      expect(parseInt(numberOfPages)).to.be.equal(10);
+      done();
+    }).catch(function(err){
+      done(err);
     });
   });
 
@@ -75,4 +104,19 @@ describe("PDFImage", function () {
     });
     expect(pdfImage.constructConvertOptions()).equal("-density 300 -trim");
   });
+
+  after(function(done){
+    //cleanUp files generated during test
+    let i = generatedFiles.length;
+    generatedFiles.forEach(function(filepath){
+      fs.unlink(filepath, function(err) {
+        i--;
+        if (err) {
+          done(err);
+        } else if (i <= 0) {
+          done();
+        }
+      });
+    });
+  })
 });
