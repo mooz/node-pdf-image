@@ -19,6 +19,7 @@ Ensure you have `convert`, `gs`, and `pdfinfo` (part of poppler) commands.
 
 ## Usage
 
+#### Convert single page:
 ```javascript
 var PDFImage = require("pdf-image").PDFImage;
 
@@ -26,6 +27,29 @@ var pdfImage = new PDFImage("/tmp/slide.pdf");
 pdfImage.convertPage(0).then(function (imagePath) {
   // 0-th page (first page) of the slide.pdf is available as slide-0.png
   fs.existsSync("/tmp/slide-0.png") // => true
+});
+```
+
+#### Convert full file
+```javascript
+var PDFImage = require("pdf-image").PDFImage;
+
+var pdfImage = new PDFImage("/tmp/slide.pdf");
+pdfImage.convertFile().then(function (imagePaths) {
+  // [ /tmp/slide-0.png, /tmp/slide-1.png ]
+});
+
+
+```
+#### Convert full file and merge result into single image
+```javascript
+var PDFImage = require("pdf-image").PDFImage;
+var pdfImage = new PDFImage("/tmp/slide.pdf", {
+  combinedImage: true
+});
+
+pdfImage.convertFile().then(function (imagePaths) {
+   // /tmp/slide.png 
 });
 ```
 
@@ -56,14 +80,10 @@ URLs for each pages of a PDF like
 Following example shows an example of how to add imagemagick command-line options (you can find the complete list here -> http://www.imagemagick.org/script/convert.php):
 
 ```javascript
-var theOptions = {};
-theOptions.convertOptions = {};
-theOptions.convertOptions["-resize"] =  "2000x2000";
-theOptions.convertOptions["-quality"] =  "75";
-```
-
-And then just change the instantiation of a new PDFImage by:
-
-```javascript
-var pdfImage = new PDFImage(pdfPath, theOptions);
+var pdfImage = new PDFImage(pdfPath, {
+  convertOptions: {
+    "-resize": "2000x2000",
+    "-quality": "75"
+  }
+});
 ```

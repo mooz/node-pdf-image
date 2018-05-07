@@ -7,6 +7,7 @@ describe("PDFImage", function () {
   let pdfPath = "/tmp/test.pdf";
   let pdfImage;
   let generatedFiles = [];
+  this.timeout(7000);
 
   before(function(done){
     fs.createReadStream('tests/test.pdf').pipe(fs.createWriteStream(pdfPath));
@@ -39,11 +40,18 @@ describe("PDFImage", function () {
       .equal("/tmp/test-2.png");
     expect(pdfImage.getOutputImagePathForPage(1000))
       .equal("/tmp/test-1000.png");
+    expect(pdfImage.getOutputImagePathForFile())
+      .equal("/tmp/test.png");
   });
 
   it("should return correct convert command", function () {
     expect(pdfImage.constructConvertCommandForPage(1))
       .equal('convert "/tmp/test.pdf[1]" "/tmp/test-1.png"');
+  });
+
+  it("should return correct convert command to combine images", function () {
+    expect(pdfImage.constructCombineCommandForFile(['/tmp/test-0.png', '/tmp/test-1.png']))
+      .equal('convert -append /tmp/test-0.png /tmp/test-1.png "/tmp/test.png"');
   });
 
   it("should use gm when you ask it to", function () {
@@ -91,6 +99,37 @@ describe("PDFImage", function () {
         reject(err);
       });
     });
+  });
+
+  it("should convert all PDF's pages to files", function () {
+    return new Promise(function(resolve, reject) {
+      pdfImage.convertFile().then(function (imagePaths) {
+        imagePaths.forEach(function(imagePath){
+          expect(fs.existsSync(imagePath)).to.be.true;
+          generatedFiles.push(imagePath);
+        });
+        resolve();
+      }).catch(function(err){
+        reject(err);
+      });
+    });
+  });
+
+  it("should convert all PDF's pages to single image", function () {
+    return new Promise(function(resolve, reject){
+      let pdfImageCombined = new PDFImage(pdfPath, {
+        combinedImage: true,
+      });
+
+      pdfImageCombined.convertFile().then(function (imagePath) {
+        expect(imagePath).to.equal("/tmp/test.png");
+        expect(fs.existsSync(imagePath)).to.be.true;
+        generatedFiles.push(imagePath);
+        resolve();
+      }).catch(function (error) {
+        reject(error);
+      });
+    })
   });
 
   it("should return # of pages", function () {

@@ -16,6 +16,7 @@ function PDFImage(pdfFilePath, options) {
   this.setConvertOptions(options.convertOptions);
   this.setConvertExtension(options.convertExtension);
   this.useGM = options.graphicsMagick || false;
+  this.combinedImage = options.combinedImage || false;
 
   this.outputDirectory = options.outputDirectory || path.dirname(pdfFilePath);
 }
@@ -65,6 +66,12 @@ PDFImage.prototype = {
       this.pdfFileBaseName + "-" + pageNumber + "." + this.convertExtension
     );
   },
+  getOutputImagePathForFile: function () {
+    return path.join(
+      this.outputDirectory,
+      this.pdfFileBaseName + "." + this.convertExtension
+    );
+  },
   setConvertOptions: function (convertOptions) {
     this.convertOptions = convertOptions || {};
   },
@@ -85,6 +92,14 @@ PDFImage.prototype = {
       pdfFilePath, pageNumber, outputImagePath
     );
   },
+  constructCombineCommandForFile: function (imagePaths) {
+    return util.format(
+      "%s -append %s \"%s\"",
+      this.useGM ? "gm convert" : "convert",
+      imagePaths.join(' '),
+      this.getOutputImagePathForFile()
+    );
+  },
   constructConvertOptions: function () {
     return Object.keys(this.convertOptions).sort().map(function (optionName) {
       if (this.convertOptions[optionName] !== null) {
@@ -93,6 +108,57 @@ PDFImage.prototype = {
         return optionName;
       }
     }, this).join(" ");
+  },
+  combineImages: function(imagePaths) {
+    var pdfImage = this;
+    var combineCommand = pdfImage.constructCombineCommandForFile(imagePaths);
+    return new Promise(function (resolve, reject) {
+      exec(combineCommand, function (err, stdout, stderr) {
+        if (err) {
+          return reject({
+            message: "Failed to combine images",
+            error: err,
+            stdout: stdout,
+            stderr: stderr
+          });
+        }
+        exec("rm "+imagePaths.join(' ')); //cleanUp
+        return resolve(pdfImage.getOutputImagePathForFile());
+      });
+    });
+  },
+  convertFile: function () {
+    var pdfImage = this;
+    return new Promise(function (resolve, reject) {
+      pdfImage.numberOfPages().then(function (totalPages) {
+        var convertPromise = new Promise(function (resolve, reject){
+          var imagePaths = [];
+          for (var i = 0; i < totalPages; i++) {
+            pdfImage.convertPage(i).then(function(imagePath){
+              imagePaths.push(imagePath);
+              if (imagePaths.length === parseInt(totalPages)){
+                imagePaths.sort(); //because of asyc pages we have to reSort pages
+                resolve(imagePaths);
+              }
+            }).catch(function(error){
+              reject(error);
+            });
+          }
+        });
+
+        convertPromise.then(function(imagePaths){
+          if (pdfImage.combinedImage){
+            pdfImage.combineImages(imagePaths).then(function(imagePath){
+              resolve(imagePath);
+            });
+          } else {
+            resolve(imagePaths);
+          }
+        }).catch(function(error){
+          reject(error);
+        });
+      });
+    });
   },
   convertPage: function (pageNumber) {
     var pdfFilePath     = this.pdfFilePath;
